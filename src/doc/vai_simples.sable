@@ -95,82 +95,82 @@ Ignored Tokens
 	
 Productions
 		
-	program = function_decl*;
+	pprogram = pfunction_decl*;
 			 
-	function_decl = tfunc function_name signature function_body;
+	pfunction_decl = tfunc pfunction_name psignature pfunction_body;
 	
-	function_name = tidentifier;
+	pfunction_name = tidentifier;
 	
-	function_body = block;
+	pfunction_body = pblock;
 	
-	block = tchave_esq statement_list tchave_dir;
+	pblock = tchave_esq pstatement_list tchave_dir;
 	
-	statement_list = {statement_list} statement statement_list |
-	                statement;		
+	pstatement_list = {statement_list} pstatement pstatement_list |
+	                pstatement;		
 			
-	statement = declaration | {return} return_stmt| {simple_stmt} simple_stmt; 
+	pstatement = pdeclaration | {return} preturn_stmt| {simple_stmt} psimple_stmt; 
 	
-	declaration = {var} var_decl tponto_virgula;
+	pdeclaration = {var} pvar_decl tponto_virgula;
 		
-	return_stmt = treturn expression_list? tponto_virgula;
+	preturn_stmt = treturn pexpression_list? tponto_virgula;
 	 
-	simple_stmt = {assignment} assignment tponto_virgula;		
+	psimple_stmt = {assignment} passignment tponto_virgula;		
 		
-	assignment = identifier_list tatribuicao expression_list;
+	passignment = pidentifier_list tatribuicao pexpression_list;
 				   
-	var_decl = tvar var_spec;
+	pvar_decl = tvar pvar_spec;
 	
-	var_spec = identifier_list type|
-			   {var_attr} identifier_list type tatribuicao expression_list;
+	pvar_spec = pidentifier_list ptype|
+			   {var_attr} pidentifier_list ptype tatribuicao pexpression_list;
 	
-	identifier_list = identifier_list tvirgula tidentifier |
+	pidentifier_list = pidentifier_list tvirgula tidentifier |
 					 {id} tidentifier;
 		
-	expression_list = expression_list tvirgula expression |
-					  {expr} expression;
+	pexpression_list = pexpression_list tvirgula pexpression |
+					  {expr} pexpression;
 
-	expression = expression tor expression_a | {expr_a} expression_a;
-	expression_a = expression_a tand expression_b | {expr_b} expression_b;
-	expression_b = expression_b rel_op expression_c | {expr_c} expression_c;
-	expression_c = expression_c add_op expression_d | {expr_d} expression_d;
-	expression_d = expression_d mul_op expression_e | {expr_e} expression_e;
-	expression_e = {uny_expr} primary_expr;
+	pexpression = pexpression tor pexpression_a | {expr_a} pexpression_a;
+	pexpression_a = pexpression_a tand pexpression_b | {expr_b} pexpression_b;
+	pexpression_b = pexpression_b prel_op pexpression_c | {expr_c} pexpression_c;
+	pexpression_c = pexpression_c padd_op pexpression_d | {expr_d} pexpression_d;
+	pexpression_d = pexpression_d pmul_op pexpression_e | {expr_e} pexpression_e;
+	pexpression_e = {uny_expr} pprimary_expr;
 	
-	rel_op = tigual | {menor_q} tmenor_q | {maior_q} tmaior_q;
-	add_op = tsoma | {menos} tmenos;
-	mul_op = tvezes | {divisao} tdivisao;
+	prel_op = tigual | {menor_q} tmenor_q | {maior_q} tmaior_q;
+	padd_op = tsoma | {menos} tmenos;
+	pmul_op = tvezes | {divisao} tdivisao;
 		
-	primary_expr = {operando} operand |
-				   {pri_args} primary_expr arguments;
+	pprimary_expr = {operando} poperand |
+				   {pri_args} pprimary_expr parguments;
 	
-	arguments = {arg_without_param} tpar_esq tpar_dir |
-				tpar_esq expression_list tpar_dir|
-				{arg_type} tpar_esq type arguments_a? tpar_dir;
-	arguments_a = tvirgula expression_list;				
+	parguments = {arg_without_param} tpar_esq tpar_dir |
+				tpar_esq pexpression_list tpar_dir|
+				{arg_type} tpar_esq ptype parguments_a? tpar_dir;
+	parguments_a = tvirgula pexpression_list;				
 	
-	operand = tidentifier | {lit} literal | {par_expr} par_expr; 
-	par_expr = tpar_esq expression tpar_dir;
+	poperand = tidentifier | {lit} pliteral | {par_expr} ppar_expr; 
+	ppar_expr = tpar_esq pexpression tpar_dir;
 	
-	literal = basic_literal | {func_lit} function_lit;
-	basic_literal = tint_literal | {booleano} tbool_literal;
-	function_lit = tfunc signature block;
+	pliteral = pbasic_literal | {func_lit} pfunction_lit;
+	pbasic_literal = tint_literal | {booleano} tbool_literal;
+	pfunction_lit = tfunc psignature pblock;
 		 																	
-	type = type_name | {par_type} par_type | {type_lit} type_lit;
-	type_name = tboolean | {int} tint;
-	type_lit = function_type;
+	ptype = ptype_name | {par_type} ppar_type | {type_lit} ptype_lit;
+	ptype_name = tboolean | {int} tint;
+	ptype_lit = pfunction_type;
 	
-	par_type = tpar_esq type tpar_dir;
+	ppar_type = tpar_esq ptype tpar_dir;
 
-	function_type = tfunc signature;
+	pfunction_type = tfunc psignature;
 	
-	signature = parameters result?;
+	psignature = pparameters presult?;
 	
-	parameters = tpar_esq tpar_dir | 
-				 {par_param} tpar_esq parameter_list tpar_dir;
+	pparameters = tpar_esq tpar_dir | 
+				 {par_param} tpar_esq pparameter_list tpar_dir;
 	
-	parameter_list = parameter_list tvirgula parameter_decl |
-					 {param_decl} parameter_decl;
+	pparameter_list = pparameter_list tvirgula pparameter_decl |
+					 {param_decl} pparameter_decl;
 	
-	parameter_decl = identifier_list type;						
+	pparameter_decl = pidentifier_list ptype;						
 	
-	result = parameters | {r_type} type;
+	presult = pparameters | {r_type} ptype;
