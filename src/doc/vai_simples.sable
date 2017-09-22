@@ -129,8 +129,11 @@ Productions
 	
 
 */
-	pexpression_list = pexpression_list tvirgula pexpression |
-					  {expr} pexpression;
+
+	pprogram = pexpression_list {-> New pprogram([pexpression_list.pexpression])};
+	
+	pexpression_list {-> pexpression*} = pexpression exp_list_tail* {-> [pexpression, exp_list_tail.pexpression]};
+    exp_list_tail {-> pexpression} = tvirgula pexpression {-> pexpression};
 
 	pexpression {-> pexpression}
 				= {or} [left]:pexpression tor [right]:pexpression_a {-> New pexpression.or(left.pexpression, right.pexpression)}
@@ -221,9 +224,8 @@ Productions
 
 Abstract Syntax Tree
 
-	pexpression_list = pexpression_list tvirgula pexpression |
-					  {expr} pexpression;
-	
+	pprogram = pexpression*;
+		
 	pexpression = {or} [left]:pexpression [right]:pexpression
      | {and} [left]:pexpression [right]:pexpression
      | {igual} [left]:pexpression [right]:pexpression
