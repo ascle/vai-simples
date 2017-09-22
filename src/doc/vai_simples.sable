@@ -5,24 +5,24 @@ Package vaiCompiler;
 
 Helpers
 
-	letra = ['a' .. 'z'] | ['A' .. 'Z'] | '_';
-	digito = ['0' .. '9'];
-	octal_digito = ['0' .. '7'];
-	hex_digito = ['0' .. '9'] | ['A' .. 'F'] | ['a' .. 'f'];
-	dec_literal = digito+;
-	oct_literal = '0'(octal_digito)+;
-	hex_literal = '0'('x' | 'X')(hex_digito)+;
+	hletra = ['a' .. 'z'] | ['A' .. 'Z'] | '_';
+	hdigito = ['0' .. '9'];
+	hoctal_digito = ['0' .. '7'];
+	hhex_digito = ['0' .. '9'] | ['A' .. 'F'] | ['a' .. 'f'];
+	hdec_literal = hdigito+;
+	hoct_literal = '0'(hoctal_digito)+;
+	hhex_literal = '0'('x' | 'X')(hhex_digito)+;
 	
-	sp = ' ';
-	ht  = 0x0009;
-	lf  = 0x000a;
-	ff  = 0x000c;
-	cr  = 0x000d;
-	eol = cr | lf | cr lf;
+	hsp = ' ';
+	hht  = 0x0009;
+	hlf  = 0x000a;
+	hff  = 0x000c;
+	hcr  = 0x000d;
+	heol = hcr | hlf | hcr hlf;
 	
 Tokens
 
-    white_space = (sp | ht | ff | eol | 0x04)*;
+    white_space = (hsp | hht | hff | heol | 0x04)*;
 	default = 'default';
 	func = 'func';
 	return = 'return';
@@ -31,9 +31,9 @@ Tokens
 	int = 'int';
 	coment_linha = '//'[32 .. 255]*;
 	coment_bloco = '/*'[32 .. 255]*'*/';
-	int_literal = dec_literal | oct_literal | hex_literal;
+	int_literal = hdec_literal | hoct_literal | hhex_literal;
 	bool_literal = 'true' | 'false';
-	identifier = letra(letra | digito)*;
+	identifier = hletra(hletra | hdigito)*;
 	soma = '+';
 	menos = '-';
 	vezes = '*';
