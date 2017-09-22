@@ -94,7 +94,7 @@ Ignored Tokens
 	*/
 	
 Productions
-		
+	/*	
 	pprogram = pfunction_decl*;
 			 
 	pfunction_decl = tfunc pfunction_name psignature pfunction_body;
@@ -120,39 +120,81 @@ Productions
 				   
 	pvar_decl = tvar pvar_spec;
 	
-	pvar_spec = pidentifier_list ptype|
-			   {var_attr} pidentifier_list ptype tatribuicao pexpression_list;
+	pvar_spec = pidentifier_list ptype
+				| {var_attr} pidentifier_list ptype tatribuicao pexpression_list;
 	
 	pidentifier_list = pidentifier_list tvirgula tidentifier |
 					 {id} tidentifier;
 		
+	
+
+*/
 	pexpression_list = pexpression_list tvirgula pexpression |
 					  {expr} pexpression;
 
-	pexpression = pexpression tor pexpression_a | {expr_a} pexpression_a;
-	pexpression_a = pexpression_a tand pexpression_b | {expr_b} pexpression_b;
-	pexpression_b = pexpression_b prel_op pexpression_c | {expr_c} pexpression_c;
-	pexpression_c = pexpression_c padd_op pexpression_d | {expr_d} pexpression_d;
-	pexpression_d = pexpression_d pmul_op pexpression_e | {expr_e} pexpression_e;
-	pexpression_e = {uny_expr} pprimary_expr;
+	pexpression {-> pexpression}
+				= {or} [left]:pexpression tor [right]:pexpression_a {-> New pexpression.or(left.pexpression, right.pexpression)}
+				| {expr_a} pexpression_a  {-> pexpression_a.pexpression}
+				;
+	pexpression_a {-> pexpression}
+				= {and} [left]:pexpression_a tand [right]:pexpression_b {-> New pexpression.and(left.pexpression, right.pexpression)}
+				| {expr_b} pexpression_b {-> pexpression_b.pexpression}
+				;
+	pexpression_b {-> pexpression}
+		= {igual} [left]:pexpression_b tigual [right]:pexpression_c {-> New pexpression.igual(left.pexpression, right.pexpression)}
+		| {menor_q} [left]:pexpression_b tmenor_q [right]:pexpression_c {-> New pexpression.menor_q(left.pexpression, right.pexpression)}
+		| {maior_q} [left]:pexpression_b tmaior_q [right]:pexpression_c {-> New pexpression.maior_q(left.pexpression, right.pexpression)}
+		| {expr_c} pexpression_c {-> pexpression_c.pexpression}
+		;
+	pexpression_c {-> pexpression}
+		= {soma}[left]:pexpression_c tsoma [right]:pexpression_d {-> New pexpression.soma(left.pexpression, right.pexpression)}
+		| {menos}[left]:pexpression_c tmenos [right]:pexpression_d {-> New pexpression.menos(left.pexpression, right.pexpression)}
+		| {expr_d} pexpression_d {-> pexpression_d.pexpression}
+				;
+	pexpression_d {-> pexpression}
+		= {vezes} [left]:pexpression_d tvezes [right]:pexpression_e {-> New pexpression.vezes(left.pexpression, right.pexpression)}
+		| {divisao} [left]:pexpression_d tdivisao [right]:pexpression_e {-> New pexpression.divisao(left.pexpression, right.pexpression)}
+		| {expr_e} pexpression_e {-> pexpression_e.pexpression}
+				;
+	pexpression_e {-> pexpression}
+				= {primariaexp} pprimary_expr {-> pprimary_expr.pexpression};
 	
-	prel_op = tigual | {menor_q} tmenor_q | {maior_q} tmaior_q;
-	padd_op = tsoma | {menos} tmenos;
-	pmul_op = tvezes | {divisao} tdivisao;
+	//prel_op = {igual} tigual | {menor_q} tmenor_q | {maior_q} tmaior_q;
+	//padd_op = {soma} tsoma | {menos} tmenos;
+	//pmul_op = {vezes} tvezes | {divisao} tdivisao;
 		
-	pprimary_expr = {operando} poperand |
-				   {pri_args} pprimary_expr parguments;
 	
-	parguments = {arg_without_param} tpar_esq tpar_dir |
-				tpar_esq pexpression_list tpar_dir|
-				{arg_type} tpar_esq ptype parguments_a? tpar_dir;
-	parguments_a = tvirgula pexpression_list;				
+
+	pprimary_expr {-> pexpression} 
+					= {operando} poperand {-> poperand.pexpression} ;
+	//				| {pri_args} pprimary_expr parguments;
 	
-	poperand = tidentifier | {lit} pliteral | {par_expr} ppar_expr; 
-	ppar_expr = tpar_esq pexpression tpar_dir;
+	//parguments = {arg_without_param} tpar_esq tpar_dir |
+	//			tpar_esq pexpression_list tpar_dir|
+	//			{arg_type} tpar_esq ptype parguments_a? tpar_dir;
+	//parguments_a = tvirgula pexpression_list;				
 	
-	pliteral = pbasic_literal | {func_lit} pfunction_lit;
-	pbasic_literal = tint_literal | {booleano} tbool_literal;
+	
+
+	poperand  {-> pexpression} = 
+			  {identificador} tidentifier {-> New pexpression.identificador(tidentifier)}
+			| {literal} pliteral {-> pliteral.pexpression} 
+			| {par_expr} ppar_expr {-> ppar_expr.pexpression} ; 
+	ppar_expr {-> pexpression}
+			= {pexpression} tpar_esq pexpression tpar_dir {-> pexpression.pexpression}; 
+
+	
+	
+	pliteral {-> pexpression}
+			= {basica} pbasic_literal  {-> pbasic_literal.pexpression} ;
+			//| {func_lit} pfunction_lit; ************************************************************************
+	pbasic_literal {-> pexpression}
+					= {inteiro} tint_literal {-> New pexpression.inteiro(tint_literal)}
+					| {booleano} tbool_literal {-> New pexpression.booleano(tbool_literal)}
+					;
+
+	/*
+
 	pfunction_lit = tfunc psignature pblock;
 		 																	
 	ptype = ptype_name | {par_type} ppar_type | {type_lit} ptype_lit;
@@ -174,3 +216,25 @@ Productions
 	pparameter_decl = pidentifier_list ptype;						
 	
 	presult = pparameters | {r_type} ptype;
+
+	*/
+
+Abstract Syntax Tree
+
+	pexpression_list = pexpression_list tvirgula pexpression |
+					  {expr} pexpression;
+	
+	pexpression = {or} [left]:pexpression [right]:pexpression
+     | {and} [left]:pexpression [right]:pexpression
+     | {igual} [left]:pexpression [right]:pexpression
+     | {menor_q} [left]:pexpression [right]:pexpression
+     | {maior_q} [left]:pexpression [right]:pexpression
+     | {soma} [left]:pexpression [right]:pexpression
+     | {menos} [left]:pexpression [right]:pexpression
+     | {vezes} [left]:pexpression [right]:pexpression
+     | {divisao} [left]:pexpression [right]:pexpression
+     | tpar_esq pexpression tpar_dir
+     | {identificador} tidentifier | {inteiro} tint_literal | {booleano} tbool_literal;
+
+	
+
