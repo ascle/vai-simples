@@ -22,37 +22,37 @@ Helpers
 	
 Tokens
 
-    white_space = (hsp | hht | hff | heol | 0x04)*;
-	default = 'default';
-	func = 'func';
-	return = 'return';
-	var = 'var';
-	boolean = 'bool';
-	int = 'int';
-	coment_linha = '//'[32 .. 255]*;
-	coment_bloco = '/*'[32 .. 255]*'*/';
-	int_literal = hdec_literal | hoct_literal | hhex_literal;
-	bool_literal = 'true' | 'false';
-	identifier = hletra(hletra | hdigito)*;
-	soma = '+';
-	menos = '-';
-	vezes = '*';
-	divisao = '/';
-	par_esq = '(';
-	par_dir = ')';
-	chave_esq = '{';
-	chave_dir = '}';
-	atribuicao = '=';
-	igual = '==';
-	menor_q = '<';
-	maior_q = '>';
-	and = '&&';
-	or = '||';
-	virgula = ',';
-	ponto_virgula = ';';
+    twhite_space = (hsp | hht | hff | heol | 0x04)*;
+	tdefault = 'default';
+	tfunc = 'func';
+	treturn = 'return';
+	tvar = 'var';
+	tboolean = 'bool';
+	tint = 'int';
+	tcoment_linha = '//'[32 .. 255]*;
+	tcoment_bloco = '/*'[32 .. 255]*'*/';
+	tint_literal = hdec_literal | hoct_literal | hhex_literal;
+	tbool_literal = 'true' | 'false';
+	tidentifier = hletra(hletra | hdigito)*;
+	tsoma = '+';
+	tmenos = '-';
+	tvezes = '*';
+	tdivisao = '/';
+	tpar_esq = '(';
+	tpar_dir = ')';
+	tchave_esq = '{';
+	tchave_dir = '}';
+	tatribuicao = '=';
+	tigual = '==';
+	tmenor_q = '<';
+	tmaior_q = '>';
+	tand = '&&';
+	tor = '||';
+	tvirgula = ',';
+	tponto_virgula = ';';
 	 
 Ignored Tokens
-coment_linha, coment_bloco, white_space;
+	tcoment_linha, tcoment_bloco, twhite_space;
 	
 	/*
 	CORTADOS: 
@@ -97,78 +97,78 @@ Productions
 		
 	program = function_decl*;
 			 
-	function_decl = func function_name signature function_body;
+	function_decl = tfunc function_name signature function_body;
 	
-	function_name = identifier;
+	function_name = tidentifier;
 	
 	function_body = block;
 	
-	block = chave_esq statement_list chave_dir;
+	block = tchave_esq statement_list tchave_dir;
 	
 	statement_list = {statement_list} statement statement_list |
 	                statement;		
 			
 	statement = declaration | {return} return_stmt| {simple_stmt} simple_stmt; 
 	
-	declaration = {var} var_decl ponto_virgula;
+	declaration = {var} var_decl tponto_virgula;
 		
-	return_stmt = return expression_list? ponto_virgula;
+	return_stmt = treturn expression_list? tponto_virgula;
 	 
-	simple_stmt = {assignment} assignment ponto_virgula;		
+	simple_stmt = {assignment} assignment tponto_virgula;		
 		
-	assignment = identifier_list atribuicao expression_list;
+	assignment = identifier_list tatribuicao expression_list;
 				   
-	var_decl = var var_spec;
+	var_decl = tvar var_spec;
 	
 	var_spec = identifier_list type|
-			   {var_attr} identifier_list type atribuicao expression_list;
+			   {var_attr} identifier_list type tatribuicao expression_list;
 	
-	identifier_list = identifier_list virgula identifier |
-					 {id} identifier;
+	identifier_list = identifier_list tvirgula tidentifier |
+					 {id} tidentifier;
 		
-	expression_list = expression_list virgula expression |
+	expression_list = expression_list tvirgula expression |
 					  {expr} expression;
 
-	expression = expression or expression_a | {expr_a} expression_a;
-	expression_a = expression_a and expression_b | {expr_b} expression_b;
+	expression = expression tor expression_a | {expr_a} expression_a;
+	expression_a = expression_a tand expression_b | {expr_b} expression_b;
 	expression_b = expression_b rel_op expression_c | {expr_c} expression_c;
 	expression_c = expression_c add_op expression_d | {expr_d} expression_d;
 	expression_d = expression_d mul_op expression_e | {expr_e} expression_e;
 	expression_e = {uny_expr} primary_expr;
 	
-	rel_op = igual | {menor_q} menor_q | {maior_q} maior_q;
-	add_op = soma | {menos} menos;
-	mul_op = vezes | {divisao} divisao;
+	rel_op = tigual | {menor_q} tmenor_q | {maior_q} tmaior_q;
+	add_op = tsoma | {menos} tmenos;
+	mul_op = tvezes | {divisao} tdivisao;
 		
 	primary_expr = {operando} operand |
 				   {pri_args} primary_expr arguments;
 	
-	arguments = {arg_without_param} par_esq par_dir |
-				par_esq expression_list par_dir|
-				{arg_type} par_esq type arguments_a? par_dir;
-	arguments_a = virgula expression_list;				
+	arguments = {arg_without_param} tpar_esq tpar_dir |
+				tpar_esq expression_list tpar_dir|
+				{arg_type} tpar_esq type arguments_a? tpar_dir;
+	arguments_a = tvirgula expression_list;				
 	
-	operand = identifier | {lit} literal | {par_expr} par_expr; 
-	par_expr = par_esq expression par_dir;
+	operand = tidentifier | {lit} literal | {par_expr} par_expr; 
+	par_expr = tpar_esq expression tpar_dir;
 	
 	literal = basic_literal | {func_lit} function_lit;
-	basic_literal = int_literal | {booleano} bool_literal;
-	function_lit = func signature block;
+	basic_literal = tint_literal | {booleano} tbool_literal;
+	function_lit = tfunc signature block;
 		 																	
 	type = type_name | {par_type} par_type | {type_lit} type_lit;
-	type_name = boolean | {int} int;
+	type_name = tboolean | {int} tint;
 	type_lit = function_type;
 	
-	par_type = par_esq type par_dir;
+	par_type = tpar_esq type tpar_dir;
 
-	function_type = func signature;
+	function_type = tfunc signature;
 	
 	signature = parameters result?;
 	
-	parameters = par_esq par_dir | 
-				 {par_param} par_esq parameter_list par_dir;
+	parameters = tpar_esq tpar_dir | 
+				 {par_param} tpar_esq parameter_list tpar_dir;
 	
-	parameter_list = parameter_list virgula parameter_decl |
+	parameter_list = parameter_list tvirgula parameter_decl |
 					 {param_decl} parameter_decl;
 	
 	parameter_decl = identifier_list type;						
