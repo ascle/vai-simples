@@ -86,7 +86,7 @@ class Main {
 		Parser p = new Parser(l);
 		try {
 			Start tree = p.parse();
-			tree.apply(new ASTPrinter());
+			tree.apply(new ASTDisplay());
 		} catch (ParserException e) {			
 			e.printStackTrace();
 			System.err.println(e.getMessage());
