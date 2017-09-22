@@ -1,0 +1,176 @@
+/*Baseado no código de autoria de Natanael*/
+/*Modificações feitas por Beatriz*/
+
+Package vaiCompiler;
+
+Helpers
+
+	letra = ['a' .. 'z'] | ['A' .. 'Z'] | '_';
+	digito = ['0' .. '9'];
+	octal_digito = ['0' .. '7'];
+	hex_digito = ['0' .. '9'] | ['A' .. 'F'] | ['a' .. 'f'];
+	dec_literal = digito+;
+	oct_literal = '0'(octal_digito)+;
+	hex_literal = '0'('x' | 'X')(hex_digito)+;
+	
+	sp = ' ';
+	ht  = 0x0009;
+	lf  = 0x000a;
+	ff  = 0x000c;
+	cr  = 0x000d;
+	eol = cr | lf | cr lf;
+	
+Tokens
+
+    white_space = (sp | ht | ff | eol | 0x04)*;
+	default = 'default';
+	func = 'func';
+	return = 'return';
+	var = 'var';
+	boolean = 'bool';
+	int = 'int';
+	coment_linha = '//'[32 .. 255]*;
+	coment_bloco = '/*'[32 .. 255]*'*/';
+	int_literal = dec_literal | oct_literal | hex_literal;
+	bool_literal = 'true' | 'false';
+	identifier = letra(letra | digito)*;
+	soma = '+';
+	menos = '-';
+	vezes = '*';
+	divisao = '/';
+	par_esq = '(';
+	par_dir = ')';
+	chave_esq = '{';
+	chave_dir = '}';
+	atribuicao = '=';
+	igual = '==';
+	menor_q = '<';
+	maior_q = '>';
+	and = '&&';
+	or = '||';
+	virgula = ',';
+	ponto_virgula = ';';
+	 
+Ignored Tokens
+coment_linha, coment_bloco, white_space;
+	
+	/*
+	CORTADOS: 
+	variáveis e constantes globais
+	métodos
+	for e if
+    operadores unários	
+    declarações de constantes
+	tipos int diferentes
+	conversão de tipos
+	tipo array
+	argumentos com reticências
+	atribuição com definição (:=)
+	função sem corpo
+	statement sem ponto e vírgula no final
+	statement com expressão apenas
+	quebra de linha no meio do código
+	statement sem efeito (vazio)
+	*/
+	
+	/*
+	FICARAM:
+	Funções
+	operações aritméticas e relacionais
+	atribuição simples (=) -> exige declaração prévia
+	declarações de variáveis dentro das funções
+	*/
+	
+	/*
+	SINTÁTICO ABSTRATO
+	Simplificar árvore gerada
+	*/
+	
+	/*SEMÂNTICO:
+	checagem de tipos:
+	 - expressões
+	 - declaração das funções X chamada das funções 
+	 - declaração de váriáveis X uso das variáveis em contexto específico
+	*/
+	
+Productions
+		
+	program = function_decl*;
+			 
+	function_decl = func function_name signature function_body;
+	
+	function_name = identifier;
+	
+	function_body = block;
+	
+	block = chave_esq statement_list chave_dir;
+	
+	statement_list = {statement_list} statement statement_list |
+	                statement;		
+			
+	statement = declaration | {return} return_stmt| {simple_stmt} simple_stmt; 
+	
+	declaration = {var} var_decl ponto_virgula;
+		
+	return_stmt = return expression_list? ponto_virgula;
+	 
+	simple_stmt = {assignment} assignment ponto_virgula;		
+		
+	assignment = identifier_list atribuicao expression_list;
+				   
+	var_decl = var var_spec;
+	
+	var_spec = identifier_list type|
+			   {var_attr} identifier_list type atribuicao expression_list;
+	
+	identifier_list = identifier_list virgula identifier |
+					 {id} identifier;
+		
+	expression_list = expression_list virgula expression |
+					  {expr} expression;
+
+	expression = expression or expression_a | {expr_a} expression_a;
+	expression_a = expression_a and expression_b | {expr_b} expression_b;
+	expression_b = expression_b rel_op expression_c | {expr_c} expression_c;
+	expression_c = expression_c add_op expression_d | {expr_d} expression_d;
+	expression_d = expression_d mul_op expression_e | {expr_e} expression_e;
+	expression_e = {uny_expr} primary_expr;
+	
+	rel_op = igual | {menor_q} menor_q | {maior_q} maior_q;
+	add_op = soma | {menos} menos;
+	mul_op = vezes | {divisao} divisao;
+		
+	primary_expr = {operando} operand |
+				   {pri_args} primary_expr arguments;
+	
+	arguments = {arg_without_param} par_esq par_dir |
+				par_esq expression_list par_dir|
+				{arg_type} par_esq type arguments_a? par_dir;
+	arguments_a = virgula expression_list;				
+	
+	operand = identifier | {lit} literal | {par_expr} par_expr; 
+	par_expr = par_esq expression par_dir;
+	
+	literal = basic_literal | {func_lit} function_lit;
+	basic_literal = int_literal | {booleano} bool_literal;
+	function_lit = func signature block;
+		 																	
+	type = type_name | {par_type} par_type | {type_lit} type_lit;
+	type_name = boolean | {int} int;
+	type_lit = function_type;
+	
+	par_type = par_esq type par_dir;
+
+	function_type = func signature;
+	
+	signature = parameters result?;
+	
+	parameters = par_esq par_dir | 
+				 {par_param} par_esq parameter_list par_dir;
+	
+	parameter_list = parameter_list virgula parameter_decl |
+					 {param_decl} parameter_decl;
+	
+	parameter_decl = identifier_list type;						
+	
+	result = parameters | {r_type} type;
